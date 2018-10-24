@@ -1,0 +1,7 @@
+{
+  "name": "graphql-vs-rest",
+  "private": true,
+  "devDependencies": {
+    "prettier": "^1.14.3"
+  }
+}
