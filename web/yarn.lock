@@ -583,12 +583,13 @@
     lodash "^4.17.10"
     to-fast-properties "^2.0.0"
 
-"@dillonkearns/elm-graphql@^1.0.4":
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/@dillonkearns/elm-graphql/-/elm-graphql-1.0.4.tgz#4e2fe468c1f4363199972efc91ba99482951a036"
-  integrity sha512-ztFfAGKrpqyvK3JAAMuwuxWAEtu8/T7528ClE7cLtPSRkgFnICLBzJPA+cbZhnVVe/h8Ys33cEt0luRdsWCjBQ==
+"@dillonkearns/elm-graphql@^1.0.7":
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/@dillonkearns/elm-graphql/-/elm-graphql-1.0.7.tgz#4a188f40d7664a1f400fe00d9890128f4894cd5f"
+  integrity sha512-Oxe7fiGZ4uPmFAAFAW4qHJQHYW7mYXzm4ALgapxY0PDY0zHfztamr3aYbBuMgIVCb6m7yQQlOns7wYOsqOpgxw==
   dependencies:
     elm-format "^0.8.0"
+    encoding "^0.1.12"
     glob "^7.1.2"
     graphql-request "^1.4.0"
     minimist "^1.2.0"
@@ -2116,6 +2117,13 @@ encodeurl@~1.0.2:
   resolved "https://registry.yarnpkg.com/encodeurl/-/encodeurl-1.0.2.tgz#ad3ff4c86ec2d029322f5a02c3a9a606c95b3f59"
   integrity sha1-rT/0yG7C0CkyL1oCw6mmBslbP1k=
 
+encoding@^0.1.12:
+  version "0.1.12"
+  resolved "https://registry.yarnpkg.com/encoding/-/encoding-0.1.12.tgz#538b66f3ee62cd1ab51ec323829d1f9480c74beb"
+  integrity sha1-U4tm8+5izRq1HsMjgp0flIDHS+s=
+  dependencies:
+    iconv-lite "~0.4.13"
+
 end-of-stream@^1.0.0, end-of-stream@^1.1.0:
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/end-of-stream/-/end-of-stream-1.4.1.tgz#ed29634d19baba463b6ce6b80a37213eab71ec43"
@@ -2936,7 +2944,7 @@ iconv-lite@0.4.23:
   dependencies:
     safer-buffer ">= 2.1.2 < 3"
 
-iconv-lite@^0.4.4:
+iconv-lite@^0.4.4, iconv-lite@~0.4.13:
   version "0.4.24"
   resolved "https://registry.yarnpkg.com/iconv-lite/-/iconv-lite-0.4.24.tgz#2022b4b25fbddc21d2f524974a474aafe733908b"
   integrity sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==

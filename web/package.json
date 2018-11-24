@@ -6,13 +6,13 @@
     "watch": "webpack --mode development --watch",
     "dev": "webpack-dev-server --mode development --port 3000",
     "build": "webpack --mode production",
-    "generate": "elm-graphql http://localhost:4000 --base GimbNovice"
+    "generate": "elm-graphql http://localhost:4000 --base GQLVsREST --output src/elm"
   },
   "dependencies": {},
   "devDependencies": {
     "@babel/core": "^7.1.2",
     "@babel/preset-env": "^7.1.0",
-    "@dillonkearns/elm-graphql": "^1.0.4",
+    "@dillonkearns/elm-graphql": "^1.0.7",
     "babel-loader": "^8.0.4",
     "clean-webpack-plugin": "^0.1.19",
     "copy-webpack-plugin": "^4.5.4",

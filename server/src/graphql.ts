@@ -1,42 +1,23 @@
 import { ApolloServer, gql } from 'apollo-server'
-import { getBook, getBooks, getAuthor } from './data'
 
 const typeDefs = gql`
   type Query {
-    book(id: ID!): Book
-    books: [Book!]!
+    test(token: String!): TestPayload!
   }
 
-  type Book {
-    id: ID!
-    title: String!
-    author: Author!
-  }
-
-  type Author {
-    id: ID!
-    name: String!
-    books: [Book!]!
+  type TestPayload {
+    token: String!
+    query: Query!
   }
 `
 
 const resolvers = {
   Query: {
-    async book(parent, { id }, ctx, info) {
-      return getBook(id)
-    },
-    async books(parent, args, ctx, info) {
-      return getBooks()
-    },
-  },
-  Book: {
-    async author({ id }, args, ctx, info) {
-      return getAuthor(id)
-    },
-  },
-  Author: {
-    async books({ id }, args, ctx, info) {
-      return getBooks({ author: id })
+    async test(parent, { token }, ctx, info) {
+      return {
+        token,
+        query: {},
+      }
     },
   },
 }
@@ -54,7 +35,7 @@ server
     port: process.env.GRAPHQL_PORT,
   })
   .then(({ url }) => {
-    console.log(`Server running on ${url}`)
+    console.log(`GraphQL running on ${url}`)
   })
   .catch(err => {
     throw err

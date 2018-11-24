@@ -1,3 +1,3 @@
 import { Elm } from '../elm/Main.elm'
 
-Elm.
+Elm.Main.init()
