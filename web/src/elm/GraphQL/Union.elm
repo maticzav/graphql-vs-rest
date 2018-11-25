@@ -2,8 +2,9 @@
 -- https://github.com/dillonkearns/elm-graphql
 
 
-module GQLVsREST.Object exposing (TestPayload(..))
+module GraphQL.Union exposing (placeholder)
 
 
-type TestPayload
-    = TestPayload
+placeholder : String
+placeholder =
+    ""

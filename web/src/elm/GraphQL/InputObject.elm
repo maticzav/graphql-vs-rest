@@ -2,8 +2,9 @@
 -- https://github.com/dillonkearns/elm-graphql
 
 
-module GQLVsREST.Scalar exposing (Upload(..))
+module GraphQL.InputObject exposing (placeholder)
 
 
-type Upload
-    = Upload String
+placeholder : String
+placeholder =
+    ""

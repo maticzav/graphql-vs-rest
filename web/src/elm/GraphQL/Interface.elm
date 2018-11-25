@@ -2,7 +2,7 @@
 -- https://github.com/dillonkearns/elm-graphql
 
 
-module GQLVsREST.Union exposing (placeholder)
+module GraphQL.Interface exposing (placeholder)
 
 
 placeholder : String

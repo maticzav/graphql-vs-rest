@@ -2,7 +2,7 @@
 -- https://github.com/dillonkearns/elm-graphql
 
 
-module GQLVsREST.Enum.CacheControlScope exposing (CacheControlScope(..), decoder, list, toString)
+module GraphQL.Enum.CacheControlScope exposing (CacheControlScope(..), decoder, list, toString)
 
 import Json.Decode as Decode exposing (Decoder)
 

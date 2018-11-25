@@ -2,13 +2,13 @@
 -- https://github.com/dillonkearns/elm-graphql
 
 
-module GQLVsREST.Query exposing (TestRequiredArguments, selection, test)
+module GraphQL.Query exposing (TestRequiredArguments, selection, test)
 
-import GQLVsREST.InputObject
-import GQLVsREST.Interface
-import GQLVsREST.Object
-import GQLVsREST.Scalar
-import GQLVsREST.Union
+import GraphQL.InputObject
+import GraphQL.Interface
+import GraphQL.Object
+import GraphQL.Scalar
+import GraphQL.Union
 import Graphql.Field as Field exposing (Field)
 import Graphql.Internal.Builder.Argument as Argument exposing (Argument)
 import Graphql.Internal.Builder.Object as Object
@@ -36,6 +36,6 @@ type alias TestRequiredArguments =
   - token -
 
 -}
-test : TestRequiredArguments -> SelectionSet decodesTo GQLVsREST.Object.TestPayload -> Field decodesTo RootQuery
+test : TestRequiredArguments -> SelectionSet decodesTo GraphQL.Object.TestPayload -> Field decodesTo RootQuery
 test requiredArgs object_ =
     Object.selectionField "test" [ Argument.required "token" requiredArgs.token Encode.string ] object_ identity
