@@ -15,6 +15,8 @@ server.get('/', (req, res) => {
 })
 
 server.get('/test/:token/', (req, res) => {
+  console.log(`REST Request: ${Date.now()}`)
+
   return res.send({
     token: req.params.token,
     links: {

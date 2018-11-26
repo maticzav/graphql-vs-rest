@@ -1,6 +1,7 @@
 module Main exposing (Msg(..), main, update, view)
 
 import Browser exposing (Document)
+import Color
 import Dict exposing (Dict)
 import GraphQL.Object
 import GraphQL.Object.TestPayload as TestPayload
@@ -13,6 +14,19 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
 import Json.Decode as JD exposing (Decoder)
+import LineChart
+import LineChart.Area as Area
+import LineChart.Axis as Axis
+import LineChart.Axis.Intersection as Intersection
+import LineChart.Colors as Colors
+import LineChart.Container as Container
+import LineChart.Dots as Dots
+import LineChart.Events as Events
+import LineChart.Grid as Grid
+import LineChart.Interpolation as Interpolation
+import LineChart.Junk as Junk exposing (..)
+import LineChart.Legends as Legends
+import LineChart.Line as Line
 import Random exposing (Generator)
 import Random.Char
 import Random.Dict
@@ -35,7 +49,7 @@ init : () -> ( Model, Cmd Msg )
 init () =
     let
         model =
-            Model 0 []
+            Model 0 Nothing
     in
     ( model, Cmd.none )
 
@@ -44,17 +58,16 @@ init () =
 -- MODEL
 
 
-type alias Model =
-    { repetitions : Int
-    , results : List Experiment
+type Model
+    = Model Int (Maybe Experiments)
+
+
+type alias Experiments =
+    { restTwoLayersResults : List ( RestResponse, Int )
+    , restThreeLayersResults : List ( RestResponse, Int )
+    , graphqlTwoLayersResults : List ( GraphQLTwoLayerResponse, Int )
+    , graphqlThreeLayersResults : List ( GraphQLThreeLayerResponse, Int )
     }
-
-
-type Experiment
-    = RestTwoLayers { time : Int }
-    | RestThreeLayers { time : Int }
-    | GraphQLTwoLayers { time : Int }
-    | GraphQLThreeLayers { time : Int }
 
 
 
@@ -64,18 +77,20 @@ type Experiment
 type Msg
     = ChangeNumberOfRepetitions String
     | PerformExperiments
-    | Results (List Experiment)
+    | GraphQLTwoLayerResults (Result (Graphql.Http.Error GraphQLTwoLayerResponse) (List ( GraphQLTwoLayerResponse, Int )))
+    | GraphQLThreeLayerResults (Result (Graphql.Http.Error GraphQLThreeLayerResponse) (List ( GraphQLThreeLayerResponse, Int )))
+    | RestTwoLayersResults (Result Http.Error (List ( RestResponse, Int )))
+    | RestThreeLayersResults (Result Http.Error (List ( RestResponse, Int )))
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg ({ experiments, currentTime } as model) =
+update msg ((Model repetitions experiments) as model) =
     case msg of
         ChangeNumberOfRepetitions str ->
             case JD.decodeString JD.int str of
-                Ok experimentSize ->
-                    ( model
+                Ok newRepetitions ->
+                    ( Model newRepetitions Nothing
                     , Cmd.none
-                      -- generateExperiment experimentSize
                     )
 
                 Err _ ->
@@ -83,14 +98,103 @@ update msg ({ experiments, currentTime } as model) =
 
         PerformExperiments ->
             let
-                performGraphQLExperiment =
-                    \_ -> ( currentTime, Cmd.none )
+                graphQL2Layers =
+                    performExperiment repetitions (graphqlTwoLayerExperiment "token")
+                        |> Task.attempt GraphQLTwoLayerResults
+
+                graphQL3Layers =
+                    performExperiment repetitions (graphqlThreeLayerExperiment "token")
+                        |> Task.attempt GraphQLThreeLayerResults
+
+                rest2Layers =
+                    performExperiment repetitions (restTwoLayersExperiment "token")
+                        |> Task.attempt RestTwoLayersResults
+
+                rest3Layers =
+                    performExperiment repetitions (restThreeLayerExperiment "token")
+                        |> Task.attempt RestThreeLayersResults
             in
-            ( model, Cmd.none )
+            ( model
+            , Cmd.batch [ graphQL2Layers, graphQL3Layers, rest2Layers, rest3Layers ]
+            )
+
+        GraphQLTwoLayerResults results ->
+            case results of
+                Ok newResults ->
+                    let
+                        newExperiments =
+                            case experiments of
+                                Just currentExperiments ->
+                                    { currentExperiments | graphqlTwoLayersResults = newResults }
+
+                                Nothing ->
+                                    Experiments [] [] newResults []
+                    in
+                    ( Model repetitions (Just newExperiments), Cmd.none )
+
+                Err _ ->
+                    ( model, Cmd.none )
+
+        GraphQLThreeLayerResults results ->
+            case results of
+                Ok newResults ->
+                    let
+                        newExperiments =
+                            case experiments of
+                                Just currentExperiments ->
+                                    { currentExperiments | graphqlThreeLayersResults = newResults }
+
+                                Nothing ->
+                                    Experiments [] [] [] newResults
+                    in
+                    ( Model repetitions (Just newExperiments), Cmd.none )
+
+                Err _ ->
+                    ( model, Cmd.none )
+
+        RestTwoLayersResults results ->
+            case results of
+                Ok newResults ->
+                    let
+                        newExperiments =
+                            case experiments of
+                                Just currentExperiments ->
+                                    { currentExperiments | restTwoLayersResults = newResults }
+
+                                Nothing ->
+                                    Experiments newResults [] [] []
+                    in
+                    ( Model repetitions (Just newExperiments), Cmd.none )
+
+                Err _ ->
+                    ( model, Cmd.none )
+
+        RestThreeLayersResults results ->
+            case results of
+                Ok newResults ->
+                    let
+                        newExperiments =
+                            case experiments of
+                                Just currentExperiments ->
+                                    { currentExperiments | restThreeLayersResults = newResults }
+
+                                Nothing ->
+                                    Experiments [] newResults [] []
+                    in
+                    ( Model repetitions (Just newExperiments), Cmd.none )
+
+                Err _ ->
+                    ( model, Cmd.none )
 
 
 
 -- Experiments
+-- performExperiments :
+
+
+performExperiment : Int -> Task x a -> Task x (List ( a, Int ))
+performExperiment repetitions experiment =
+    Task.sequence (List.repeat repetitions (measureTask experiment))
 
 
 measureTask : Task x a -> Task x ( a, Int )
@@ -310,7 +414,48 @@ subscriptions model =
 
 
 view : Model -> Document Msg
-view model =
+view ((Model repetitions experiments) as model) =
     { title = "Rest vs GraphQL"
-    , body = []
+    , body =
+        [ div []
+            [ input [ onInput ChangeNumberOfRepetitions, placeholder "N" ] []
+            , button [ onClick PerformExperiments ] [ text "Perform experiments" ]
+            ]
+        , div []
+            (case experiments of
+                Just currentExperiments ->
+                    [ chart currentExperiments ]
+
+                Nothing ->
+                    [ text "Run experiments!" ]
+            )
+        ]
     }
+
+
+chart : Experiments -> Html Msg
+chart experiments =
+    let
+        normaliseExperiments : List ( a, Int ) -> List ( Float, Float )
+        normaliseExperiments exs =
+            List.indexedMap (\i ( _, v ) -> ( toFloat i, toFloat v )) exs
+    in
+    LineChart.viewCustom
+        { x = Axis.default 700 "Sample" Tuple.first
+        , y = Axis.default 450 "Delay" Tuple.second
+        , container = Container.styled "line-chart-1" [ ( "font-family", "monospace" ) ]
+        , interpolation = Interpolation.default
+        , intersection = Intersection.default
+        , legends = Legends.default
+        , events = Events.default
+        , junk = Junk.default
+        , grid = Grid.default
+        , area = Area.default
+        , line = Line.default
+        , dots = Dots.custom (Dots.full 2.0)
+        }
+        [ LineChart.line Color.blue Dots.circle "GraphQL Two Layers" (normaliseExperiments experiments.graphqlTwoLayersResults)
+        , LineChart.line Color.purple Dots.circle "GraphQL Three Layers" (normaliseExperiments experiments.graphqlThreeLayersResults)
+        , LineChart.line Color.yellow Dots.circle "Rest Two Layers" (normaliseExperiments experiments.restTwoLayersResults)
+        , LineChart.line Color.green Dots.circle "Rest Three Layers" (normaliseExperiments experiments.restThreeLayersResults)
+        ]

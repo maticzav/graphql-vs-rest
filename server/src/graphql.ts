@@ -14,6 +14,7 @@ const typeDefs = gql`
 const resolvers = {
   Query: {
     async test(parent, { token }, ctx, info) {
+      console.log(`GraphQL Request: ${Date.now()}`)
       return {
         token,
         query: {},
@@ -28,6 +29,7 @@ const server = new ApolloServer({
   typeDefs,
   resolvers,
   tracing: true,
+  debug: true,
 })
 
 server
